@@ -22,7 +22,8 @@ class Index extends console
         $view -> assign('aaa', '111111');
 
         Foo::doit();
-
+        showMe();
+		
         Log::record('测试日志信息');
         Log::record('测试日志信息，这是警告级别', 'show1');
         Log::write('测试日志信息，这是警告级别，并且实时写入', 'notice');
