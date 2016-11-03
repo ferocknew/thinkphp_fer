@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-ini_set('memory_limit', '-1');
+
 return array(
     // +----------------------------------------------------------------------
     // | 应用设置
@@ -19,7 +19,7 @@ return array(
     // 应用调试模式
     'app_debug'              => 1,
     // 应用Trace
-    'app_trace'              => false,
+    'app_trace'              => 1,
     // 应用模式状态
     'app_status'             => '',
     // 是否支持多模块
@@ -170,6 +170,16 @@ return array(
     'trace'                  => [
         // 内置Html Console 支持扩展
         'type' => 'Html',
+        'trace_tabs' =>  [
+         'base'=>'基本',
+         'file'=>'文件',
+         'info'=>'流程',
+         'error|notice'=>'错误',
+         'sql'=>'SQL',
+         'log'=>'调试',
+         'user'=>'用户',
+         'debug|log|info'=>'日志'
+     ],
     ],
 
     // +----------------------------------------------------------------------
@@ -196,11 +206,13 @@ return array(
         // SESSION_ID的提交变量,解决flash上传跨域
         'var_session_id' => '',
         // SESSION 前缀
-        'prefix'         => 'think',
+        'prefix'         => '',
         // 驱动方式 支持redis memcache memcached
         'type'           => '',
         // 是否自动开启 SESSION
         'auto_start'     => true,
+        'expire' => 600,
+        'name'=>'psid',
     ],
 
     // +----------------------------------------------------------------------
