@@ -16,14 +16,12 @@ namespace think\log\driver;
  */
 class File
 {
-    protected $config = [
-        'time_format' => ' c ',
-        'file_size'   => 2097152,
-        'path'        => LOG_PATH,
-        'apart_level' => [],
-    ];
-	
-	protected $pid='';
+    protected $config = ['time_format' => ' c ',
+        'file_size' => 2097152,
+        'path' => LOG_PATH,
+        'apart_level' => [],];
+
+    protected $pid = '';
 
     // 实例化并传入参数
     public function __construct($config = [])
@@ -32,14 +30,15 @@ class File
             $this->config = array_merge($this->config, $config);
         }
     }
-	
-	public function getPid(){
-		if(empty($this -> pid)){
-			$this -> pid = sha1(uniqid(4));
-		}
-		
-		return $this -> pid;
-	}
+
+    public function getPid()
+    {
+        if (empty($this->pid)) {
+            $this->pid = sha1(uniqid(4));
+        }
+
+        return $this->pid;
+    }
 
     /**
      * 日志写入接口
@@ -49,7 +48,7 @@ class File
      */
     public function save(array $log = [])
     {
-        $now         = date($this->config['time_format']);
+        $now = date($this->config['time_format']);
         $destination = $this->config['path'] . date('Ym') . DS . date('d') . '.log';
 
         $path = dirname($destination);
@@ -67,40 +66,41 @@ class File
             $current_uri = "cmd:" . implode(' ', $_SERVER['argv']);
         }
 
-        $runtime    = number_format(microtime(true) - THINK_START_TIME, 10);
-        $reqs       = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
-        $time_str   = ' [运行时间：' . number_format($runtime, 6) . 's][吞吐率：' . $reqs . 'req/s]';
+        $runtime = number_format(microtime(true) - THINK_START_TIME, 10);
+        $reqs = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
+        $time_str = ' [运行时间：' . number_format($runtime, 6) . 's][吞吐率：' . $reqs . 'req/s]';
         $memory_use = number_format((memory_get_usage() - THINK_START_MEM) / 1024, 2);
         $memory_str = ' [内存消耗：' . $memory_use . 'kb]';
-        $file_load  = ' [文件加载：' . count(get_included_files()) . ']';
+        $file_load = ' [文件加载：' . count(get_included_files()) . ']';
 
-        $info   = '[ log ] ' . $current_uri . $time_str . $memory_str . $file_load . "\r\n";
+        $info = '[ log ] ' . $current_uri . $time_str . $memory_str . $file_load . "\r\n";
         $server = isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : '0.0.0.0';
         $remote = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0';
         $method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'CLI';
-        $uri    = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
-		
-		$pid=$this -> getPid();
-		// $pid='';
-		
+        $uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+
+        $pid = $this->getPid();
+        // $pid='';
+
         foreach ($log as $type => $val) {
             $level = '';
             foreach ($val as $msg) {
                 if (!is_string($msg)) {
                     $msg = var_export($msg, true);
                 }
-                $level .= '[ ' . $type . ' ] ' . $msg . "\r\n";
+                $time = date("Y-m-d H:i:s");
+                $level .= "[$time] [$pid] [$type] " . $msg . "\r\n";
             }
             if (in_array($type, $this->config['apart_level'])) {
                 // 独立记录的日志级别
                 $filename = $path . DS . date('d') . '_' . $type . '.log';
-                error_log("[$pid] [{$now}] {$server} {$remote} {$method} {$uri}\r\n{$level}\r\n---------------------------------------------------------------\r\n", 3, $filename);
+                error_log("[{$now}] [$pid]  {$server} {$remote} {$method} {$uri}\r\n{$level}\r\n---------------------------------------------------------------\r\n", 3, $filename);
             } else {
                 $info .= $level;
             }
         }
-		
-        return error_log("[$pid] [{$now}] {$server} {$remote} {$method} {$uri}\r\n{$info}\r\n---------------------------------------------------------------\r\n", 3, $destination);
+
+        return error_log("[{$now}] [$pid] {$server} {$remote} {$method} {$uri}\r\n{$info}\r\n---------------------------------------------------------------\r\n", 3, $destination);
     }
 
 }
